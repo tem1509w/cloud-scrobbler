@@ -3,20 +3,25 @@ info:
   # Do not change the title, if the title changes, the import paths will be broken
   title: Api
   version: 0.1.0
-  description: API specification
+  description: Spotify scrobbling app API
 servers:
   - url: /api
     description: Base API path
 tags:
   - name: health
     description: Health operations
+  - name: auth
+    description: Authentication (Spotify + Last.fm)
+  - name: scrobbles
+    description: Scrobble history
+  - name: stats
+    description: Listening statistics
 paths:
   /healthz:
     get:
       operationId: healthCheck
       tags: [health]
       summary: Health check
-      description: Returns server health status
       responses:
         "200":
           description: Healthy
@@ -24,13 +29,353 @@ paths:
             application/json:
               schema:
                 $ref: "#/components/schemas/HealthStatus"
+
+  /auth/me:
+    get:
+      operationId: getMe
+      tags: [auth]
+      summary: Get current user session info
+      responses:
+        "200":
+          description: Session info
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/SessionInfo"
+
+  /auth/spotify/connect:
+    get:
+      operationId: connectSpotify
+      tags: [auth]
+      summary: Start Spotify OAuth flow (redirects)
+      responses:
+        "302":
+          description: Redirect to Spotify
+
+  /auth/spotify/callback:
+    get:
+      operationId: spotifyCallback
+      tags: [auth]
+      summary: Spotify OAuth callback
+      responses:
+        "302":
+          description: Redirect to frontend
+
+  /auth/lastfm/connect:
+    get:
+      operationId: connectLastfm
+      tags: [auth]
+      summary: Start Last.fm auth flow (redirects)
+      responses:
+        "302":
+          description: Redirect to Last.fm
+
+  /auth/lastfm/callback:
+    get:
+      operationId: lastfmCallback
+      tags: [auth]
+      summary: Last.fm auth callback
+      responses:
+        "302":
+          description: Redirect to frontend
+
+  /auth/disconnect/spotify:
+    post:
+      operationId: disconnectSpotify
+      tags: [auth]
+      summary: Disconnect Spotify account
+      responses:
+        "200":
+          description: Disconnected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /auth/disconnect/lastfm:
+    post:
+      operationId: disconnectLastfm
+      tags: [auth]
+      summary: Disconnect Last.fm account
+      responses:
+        "200":
+          description: Disconnected
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /scrobbles:
+    get:
+      operationId: getScrobbles
+      tags: [scrobbles]
+      summary: Get scrobble history (paginated)
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 50
+        - in: query
+          name: offset
+          schema:
+            type: integer
+            default: 0
+      responses:
+        "200":
+          description: List of scrobbles
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrobbleList"
+
+  /scrobbles/now-playing:
+    get:
+      operationId: getNowPlaying
+      tags: [scrobbles]
+      summary: Get currently playing track from Spotify
+      responses:
+        "200":
+          description: Currently playing track or null
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/NowPlayingResponse"
+
+  /scrobbles/trigger:
+    post:
+      operationId: triggerScrobble
+      tags: [scrobbles]
+      summary: Manually trigger a scrobble check
+      responses:
+        "200":
+          description: Scrobble result
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ScrobbleTriggerResult"
+
+  /stats/summary:
+    get:
+      operationId: getStatsSummary
+      tags: [stats]
+      summary: Get listening stats summary
+      responses:
+        "200":
+          description: Stats summary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/StatsSummary"
+
+  /stats/top-artists:
+    get:
+      operationId: getTopArtists
+      tags: [stats]
+      summary: Get top artists
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top artists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/ArtistCount"
+
+  /stats/top-tracks:
+    get:
+      operationId: getTopTracks
+      tags: [stats]
+      summary: Get top tracks
+      parameters:
+        - in: query
+          name: limit
+          schema:
+            type: integer
+            default: 10
+      responses:
+        "200":
+          description: Top tracks
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/TrackCount"
+
+  /stats/scrobbles-per-day:
+    get:
+      operationId: getScrobblesPerDay
+      tags: [stats]
+      summary: Get scrobble counts per day (last 30 days)
+      responses:
+        "200":
+          description: Daily scrobble counts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/DailyCount"
+
 components:
   schemas:
     HealthStatus:
       type: object
+      required: [status]
       properties:
         status:
           type: string
-      required:
-        - status
 
+    OkResponse:
+      type: object
+      required: [ok]
+      properties:
+        ok:
+          type: boolean
+
+    SessionInfo:
+      type: object
+      required: [spotifyConnected, lastfmConnected]
+      properties:
+        spotifyConnected:
+          type: boolean
+        lastfmConnected:
+          type: boolean
+        spotifyUser:
+          type: ["object", "null"]
+          properties:
+            id: { type: string }
+            displayName: { type: string }
+            imageUrl: { type: ["string", "null"] }
+          required: [id, displayName]
+        lastfmUser:
+          type: ["object", "null"]
+          properties:
+            username: { type: string }
+          required: [username]
+        scrobblingEnabled:
+          type: boolean
+        totalScrobbles:
+          type: integer
+
+    Scrobble:
+      type: object
+      required: [id, trackName, artistName, albumName, scrobbledAt, spotifyTrackId]
+      properties:
+        id:
+          type: integer
+        trackName:
+          type: string
+        artistName:
+          type: string
+        albumName:
+          type: string
+        albumArt:
+          type: ["string", "null"]
+        spotifyTrackId:
+          type: string
+        durationMs:
+          type: ["integer", "null"]
+        scrobbledAt:
+          type: string
+          format: date-time
+
+    ScrobbleList:
+      type: object
+      required: [scrobbles, total]
+      properties:
+        scrobbles:
+          type: array
+          items:
+            $ref: "#/components/schemas/Scrobble"
+        total:
+          type: integer
+
+    NowPlayingResponse:
+      type: object
+      required: [isPlaying]
+      properties:
+        isPlaying:
+          type: boolean
+        track:
+          type: ["object", "null"]
+          properties:
+            trackName: { type: string }
+            artistName: { type: string }
+            albumName: { type: string }
+            albumArt: { type: ["string", "null"] }
+            spotifyTrackId: { type: string }
+            durationMs: { type: integer }
+            progressMs: { type: integer }
+          required: [trackName, artistName, albumName, spotifyTrackId, durationMs, progressMs]
+
+    ScrobbleTriggerResult:
+      type: object
+      required: [scrobbled, message]
+      properties:
+        scrobbled:
+          type: boolean
+        message:
+          type: string
+        track:
+          type: ["object", "null"]
+          properties:
+            trackName: { type: string }
+            artistName: { type: string }
+          required: [trackName, artistName]
+
+    StatsSummary:
+      type: object
+      required: [totalScrobbles, uniqueArtists, uniqueTracks, scrobblingEnabled]
+      properties:
+        totalScrobbles:
+          type: integer
+        uniqueArtists:
+          type: integer
+        uniqueTracks:
+          type: integer
+        scrobblingEnabled:
+          type: boolean
+        todayCount:
+          type: integer
+        thisWeekCount:
+          type: integer
+
+    ArtistCount:
+      type: object
+      required: [artistName, count]
+      properties:
+        artistName:
+          type: string
+        count:
+          type: integer
+
+    TrackCount:
+      type: object
+      required: [trackName, artistName, count]
+      properties:
+        trackName:
+          type: string
+        artistName:
+          type: string
+        count:
+          type: integer
+        albumArt:
+          type: ["string", "null"]
+
+    DailyCount:
+      type: object
+      required: [date, count]
+      properties:
+        date:
+          type: string
+        count:
+          type: integer

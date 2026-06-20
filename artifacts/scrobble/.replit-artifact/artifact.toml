@@ -1,0 +1,31 @@
+kind = "web"
+previewPath = "/"
+title = "Scrobble — Spotify to Last.fm"
+version = "1.0.0"
+id = "artifacts/scrobble"
+router = "path"
+
+[[integratedSkills]]
+name = "react-vite"
+version = "1.0.0"
+
+[[services]]
+name = "web"
+paths = [ "/" ]
+localPort = 20165
+
+[services.development]
+run = "pnpm --filter @workspace/scrobble run dev"
+
+[services.production]
+build = [ "pnpm", "--filter", "@workspace/scrobble", "run", "build" ]
+publicDir = "artifacts/scrobble/dist/public"
+serve = "static"
+
+[[services.production.rewrites]]
+from = "/*"
+to = "/index.html"
+
+[services.env]
+PORT = "20165"
+BASE_PATH = "/"
