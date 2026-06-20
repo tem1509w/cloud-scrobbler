@@ -7,10 +7,13 @@ if (!process.env.SESSION_SECRET) {
 export const sessionMiddleware = session({
   secret: process.env.SESSION_SECRET,
   resave: false,
-  saveUninitialized: false,
+  // Save session immediately so the state param survives the OAuth round-trip
+  saveUninitialized: true,
   cookie: {
     httpOnly: true,
-    secure: process.env.NODE_ENV === "production",
+    // Replit always serves over HTTPS — secure cookies work in both dev & prod
+    secure: true,
+    sameSite: "lax",
     maxAge: 30 * 24 * 60 * 60 * 1000, // 30 days
   },
 });

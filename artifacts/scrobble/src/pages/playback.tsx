@@ -147,7 +147,7 @@ export default function Playback() {
             <p className="text-muted-foreground text-sm">Connect Spotify to browse and play your playlists.</p>
             <Button
               className="bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold uppercase tracking-wider w-full"
-              onClick={() => (window.location.href = "/api/auth/spotify/connect")}
+              onClick={() => window.open("/api/auth/spotify/connect", "_top")}
             >
               <LogIn className="mr-2 h-4 w-4" /> Connect Spotify
             </Button>
@@ -288,7 +288,7 @@ export default function Playback() {
             <Button
               size="sm"
               className="shrink-0 bg-[#1DB954] hover:bg-[#1ed760] text-black text-xs font-bold uppercase"
-              onClick={() => (window.location.href = "/api/auth/spotify/connect")}
+              onClick={() => window.open("/api/auth/spotify/connect", "_top")}
             >
               Reconnect
             </Button>

@@ -151,7 +151,7 @@ export default function Dashboard() {
                 ) : (
                   <Button
                     className="w-full bg-[#1DB954] hover:bg-[#1ed760] text-black font-bold uppercase tracking-wider"
-                    onClick={() => (window.location.href = "/api/auth/spotify/connect")}
+                    onClick={() => window.open("/api/auth/spotify/connect", "_top")}
                   >
                     <LogIn className="mr-2 h-4 w-4" /> Connect Source
                   </Button>
@@ -202,7 +202,7 @@ export default function Dashboard() {
                 ) : (
                   <Button
                     className="w-full bg-[#d51007] hover:bg-[#ff160a] text-white font-bold uppercase tracking-wider"
-                    onClick={() => (window.location.href = "/api/auth/lastfm/connect")}
+                    onClick={() => window.open("/api/auth/lastfm/connect", "_top")}
                   >
                     <LogIn className="mr-2 h-4 w-4" /> Connect Target
                   </Button>
