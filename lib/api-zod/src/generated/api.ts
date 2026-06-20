@@ -52,6 +52,18 @@ export const DisconnectLastfmResponse = zod.object({
 
 
 /**
+ * @summary Enable or disable auto-scrobbling
+ */
+export const SetScrobblingEnabledBody = zod.object({
+  "enabled": zod.boolean()
+})
+
+export const SetScrobblingEnabledResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary Get scrobble history (paginated)
  */
 export const getScrobblesQueryLimitDefault = 50;

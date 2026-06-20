@@ -30,13 +30,14 @@ import type {
   OkResponse,
   ScrobbleList,
   ScrobbleTriggerResult,
+  ScrobblingToggle,
   SessionInfo,
   StatsSummary,
   TrackCount
 } from './api.schemas';
 
 import { customFetch } from '../custom-fetch';
-import type { ErrorType } from '../custom-fetch';
+import type { ErrorType , BodyType } from '../custom-fetch';
 
 type AwaitedInput<T> = PromiseLike<T> | T;
 
@@ -647,6 +648,77 @@ export const useDisconnectLastfm = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getDisconnectLastfmMutationOptions(options));
+    }
+
+export const getSetScrobblingEnabledUrl = () => {
+
+
+
+
+  return `/api/auth/scrobbling`
+}
+
+/**
+ * @summary Enable or disable auto-scrobbling
+ */
+export const setScrobblingEnabled = async (scrobblingToggle: ScrobblingToggle, options?: RequestInit): Promise<OkResponse> => {
+
+  return customFetch<OkResponse>(getSetScrobblingEnabledUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      scrobblingToggle,)
+  }
+);}
+
+
+
+
+export const getSetScrobblingEnabledMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setScrobblingEnabled>>, TError,{data: BodyType<ScrobblingToggle>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setScrobblingEnabled>>, TError,{data: BodyType<ScrobblingToggle>}, TContext> => {
+
+const mutationKey = ['setScrobblingEnabled'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setScrobblingEnabled>>, {data: BodyType<ScrobblingToggle>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setScrobblingEnabled(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetScrobblingEnabledMutationResult = NonNullable<Awaited<ReturnType<typeof setScrobblingEnabled>>>
+    export type SetScrobblingEnabledMutationBody = BodyType<ScrobblingToggle>
+    export type SetScrobblingEnabledMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Enable or disable auto-scrobbling
+ */
+export const useSetScrobblingEnabled = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setScrobblingEnabled>>, TError,{data: BodyType<ScrobblingToggle>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setScrobblingEnabled>>,
+        TError,
+        {data: BodyType<ScrobblingToggle>},
+        TContext
+      > => {
+      return useMutation(getSetScrobblingEnabledMutationOptions(options));
     }
 
 export const getGetScrobblesUrl = (params?: GetScrobblesParams,) => {

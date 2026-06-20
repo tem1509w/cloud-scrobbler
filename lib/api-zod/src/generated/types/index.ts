@@ -19,6 +19,7 @@ export * from './scrobble';
 export * from './scrobbleList';
 export * from './scrobbleTriggerResult';
 export * from './scrobbleTriggerResultTrack';
+export * from './scrobblingToggle';
 export * from './sessionInfo';
 export * from './sessionInfoLastfmUser';
 export * from './sessionInfoSpotifyUser';

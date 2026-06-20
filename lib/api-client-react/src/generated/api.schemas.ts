@@ -121,6 +121,10 @@ export interface DailyCount {
   count: number;
 }
 
+export interface ScrobblingToggle {
+  enabled: boolean;
+}
+
 export type GetScrobblesParams = {
 limit?: number;
 offset?: number;

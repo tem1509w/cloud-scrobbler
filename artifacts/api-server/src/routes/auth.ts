@@ -209,4 +209,22 @@ router.post("/auth/disconnect/lastfm", async (req, res): Promise<void> => {
   res.json({ ok: true });
 });
 
+router.patch("/auth/scrobbling", async (req, res): Promise<void> => {
+  if (!req.session.userId) {
+    res.status(401).json({ error: "Not authenticated" });
+    return;
+  }
+  const { enabled } = req.body as { enabled?: unknown };
+  if (typeof enabled !== "boolean") {
+    res.status(400).json({ error: "enabled must be a boolean" });
+    return;
+  }
+  await db
+    .update(usersTable)
+    .set({ scrobblingEnabled: enabled ? "true" : "false" })
+    .where(eq(usersTable.id, req.session.userId));
+  req.log.info({ userId: req.session.userId, enabled }, "Scrobbling toggled");
+  res.json({ ok: true });
+});
+
 export default router;

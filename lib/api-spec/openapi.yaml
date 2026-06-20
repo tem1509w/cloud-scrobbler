@@ -105,6 +105,25 @@ paths:
               schema:
                 $ref: "#/components/schemas/OkResponse"
 
+  /auth/scrobbling:
+    patch:
+      operationId: setScrobblingEnabled
+      tags: [auth]
+      summary: Enable or disable auto-scrobbling
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/ScrobblingToggle"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
   /scrobbles:
     get:
       operationId: getScrobbles
@@ -379,3 +398,10 @@ components:
           type: string
         count:
           type: integer
+
+    ScrobblingToggle:
+      type: object
+      required: [enabled]
+      properties:
+        enabled:
+          type: boolean

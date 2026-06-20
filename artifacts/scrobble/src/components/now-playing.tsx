@@ -16,23 +16,22 @@ export function NowPlaying() {
   useEffect(() => {
     if (!nowPlaying?.track) {
       setProgressPercent(0);
-      return;
+      return () => {};
     }
     
-    // Smooth progress approximation between polls
     const { progressMs, durationMs } = nowPlaying.track;
     const initialPercent = (progressMs / durationMs) * 100;
     setProgressPercent(initialPercent);
     
-    if (nowPlaying.isPlaying) {
-      const interval = setInterval(() => {
-        setProgressPercent(p => {
-          const addedPercent = (1000 / durationMs) * 100;
-          return Math.min(100, p + addedPercent);
-        });
-      }, 1000);
-      return () => clearInterval(interval);
-    }
+    if (!nowPlaying.isPlaying) return () => {};
+
+    const interval = setInterval(() => {
+      setProgressPercent(p => {
+        const addedPercent = (1000 / durationMs) * 100;
+        return Math.min(100, p + addedPercent);
+      });
+    }, 1000);
+    return () => clearInterval(interval);
   }, [nowPlaying]);
 
   if (isLoading) {
@@ -88,7 +87,12 @@ export function NowPlaying() {
         </p>
         
         <div className="mt-3 flex items-center gap-3">
-          <Progress value={progressPercent} className="h-1.5 bg-muted/50 w-full" indicatorClassName="bg-primary" />
+          <div className="h-1.5 w-full bg-muted/50 rounded-full overflow-hidden">
+            <div
+              className="h-full bg-primary transition-all duration-1000 ease-linear rounded-full"
+              style={{ width: `${progressPercent}%` }}
+            />
+          </div>
         </div>
       </div>
     </div>
