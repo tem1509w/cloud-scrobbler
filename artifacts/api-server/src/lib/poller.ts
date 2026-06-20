@@ -166,9 +166,16 @@ async function runPoll(): Promise<void> {
   }
 }
 
-export function startPoller(): void {
+export function startPoller(): { stop: () => void } {
   logger.info({ intervalMs: POLL_INTERVAL_MS }, "Auto-scrobble poller started");
   // Run immediately on start, then every interval
   void runPoll();
-  setInterval(() => void runPoll(), POLL_INTERVAL_MS);
+  const intervalId = setInterval(() => void runPoll(), POLL_INTERVAL_MS);
+
+  return {
+    stop: () => {
+      clearInterval(intervalId);
+      logger.info("Auto-scrobble poller stopped");
+    },
+  };
 }

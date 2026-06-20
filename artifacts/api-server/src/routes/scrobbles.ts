@@ -1,6 +1,6 @@
 import { Router, type IRouter } from "express";
 import { db, usersTable, scrobblesTable } from "@workspace/db";
-import { eq, desc, count } from "drizzle-orm";
+import { eq, desc, count, type InferSelectModel } from "drizzle-orm";
 import { getValidSpotifyToken, getSpotifyCurrentlyPlaying } from "../lib/spotify";
 import { scrobbleTrack, updateNowPlaying } from "../lib/lastfm";
 import {
@@ -9,6 +9,8 @@ import {
   GetNowPlayingResponse,
   TriggerScrobbleResponse,
 } from "@workspace/api-zod";
+
+type ScrobbleRow = InferSelectModel<typeof scrobblesTable>;
 
 const router: IRouter = Router();
 
@@ -38,7 +40,7 @@ router.get("/scrobbles", async (req, res): Promise<void> => {
 
   res.json(
     GetScrobblesResponse.parse({
-      scrobbles: rows.map((r) => ({
+      scrobbles: rows.map((r: ScrobbleRow) => ({
         id: r.id,
         trackName: r.trackName,
         artistName: r.artistName,

@@ -1,4 +1,5 @@
 import crypto from "crypto";
+import { logger } from "./logger";
 
 const LASTFM_API_KEY = process.env.LASTFM_API_KEY!;
 const LASTFM_SHARED_SECRET = process.env.LASTFM_SHARED_SECRET!;
@@ -85,21 +86,28 @@ export async function updateNowPlaying(
     durationMs?: number;
   }
 ): Promise<void> {
-  const params: Record<string, string> = {
-    api_key: LASTFM_API_KEY,
-    artist: track.artistName,
-    method: "track.updateNowPlaying",
-    sk: sessionKey,
-    track: track.trackName,
-  };
-  if (track.albumName) params.album = track.albumName;
-  if (track.durationMs) params.duration = String(Math.floor(track.durationMs / 1000));
+  try {
+    const params: Record<string, string> = {
+      api_key: LASTFM_API_KEY,
+      artist: track.artistName,
+      method: "track.updateNowPlaying",
+      sk: sessionKey,
+      track: track.trackName,
+    };
+    if (track.albumName) params.album = track.albumName;
+    if (track.durationMs) params.duration = String(Math.floor(track.durationMs / 1000));
 
-  const sig = sign(params);
-  const body = new URLSearchParams({ ...params, api_sig: sig, format: "json" });
-  await fetch(LASTFM_API_BASE, {
-    method: "POST",
-    headers: { "Content-Type": "application/x-www-form-urlencoded" },
-    body: body.toString(),
-  });
+    const sig = sign(params);
+    const body = new URLSearchParams({ ...params, api_sig: sig, format: "json" });
+    const resp = await fetch(LASTFM_API_BASE, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: body.toString(),
+    });
+    if (!resp.ok) {
+      logger.warn({ status: resp.status, track: track.trackName }, "Failed to update now playing on Last.fm");
+    }
+  } catch (err) {
+    logger.warn({ err, track: track.trackName }, "Error updating now playing on Last.fm");
+  }
 }
