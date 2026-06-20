@@ -132,7 +132,7 @@ router.get("/auth/spotify/callback", async (req, res): Promise<void> => {
       })
       .where(eq(usersTable.id, req.session.userId!));
 
-    res.redirect(`${frontendBase}/`);
+    res.redirect(`${frontendBase}/?oauth_complete=spotify`);
   } catch (err) {
     req.log.error({ err }, "Spotify callback error");
     res.redirect(`${frontendBase}/?error=spotify_auth_failed`);
@@ -190,7 +190,7 @@ router.get("/auth/lastfm/callback", async (req, res): Promise<void> => {
       .set({ lastfmSessionKey: key, lastfmUsername: username })
       .where(eq(usersTable.id, req.session.userId!));
 
-    res.redirect(`${frontendBase}/`);
+    res.redirect(`${frontendBase}/?oauth_complete=lastfm`);
   } catch (err) {
     req.log.error({ err }, "Last.fm callback error");
     res.redirect(`${frontendBase}/?error=lastfm_auth_failed`);

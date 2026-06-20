@@ -1,0 +1,1 @@
+- [Replit iframe OAuth pattern](oauth-iframe.md) — popup window required for OAuth in Replit preview iframe; _top navigation is silently blocked by sandbox
