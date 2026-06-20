@@ -9,7 +9,14 @@ const SPOTIFY_TOKEN_URL = "https://accounts.spotify.com/api/token";
 const SPOTIFY_API_BASE = "https://api.spotify.com/v1";
 
 export function getSpotifyAuthUrl(redirectUri: string, state: string): string {
-  const scopes = ["user-read-currently-playing", "user-read-playback-state"].join(" ");
+  const scopes = [
+    "user-read-currently-playing",
+    "user-read-playback-state",
+    "user-modify-playback-state",
+    "playlist-read-private",
+    "playlist-read-collaborative",
+    "user-library-read",
+  ].join(" ");
   const params = new URLSearchParams({
     client_id: SPOTIFY_CLIENT_ID,
     response_type: "code",

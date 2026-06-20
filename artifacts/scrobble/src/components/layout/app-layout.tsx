@@ -1,7 +1,7 @@
 import { ReactNode } from "react";
 import { Link, useLocation } from "wouter";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
-import { Headphones, Activity, ListMusic, LogOut, Loader2 } from "lucide-react";
+import { Headphones, Activity, ListMusic, Loader2, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
 
 function NavItem({
@@ -54,6 +54,9 @@ export function AppLayout({ children }: { children: ReactNode }) {
         <nav className="flex-1 px-4 py-6 space-y-2">
           <NavItem href="/" icon={Headphones}>
             Control Room
+          </NavItem>
+          <NavItem href="/playback" icon={PlayCircle}>
+            Playback
           </NavItem>
           <NavItem href="/history" icon={ListMusic}>
             Scrobbles

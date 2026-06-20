@@ -28,10 +28,15 @@ import type {
   HealthStatus,
   NowPlayingResponse,
   OkResponse,
+  PlaybackInput,
+  ReconnectNeeded,
+  RepeatInput,
   ScrobbleList,
   ScrobbleTriggerResult,
   ScrobblingToggle,
   SessionInfo,
+  SpotifyDevice,
+  SpotifyPlaylist,
   StatsSummary,
   TrackCount
 } from './api.schemas';
@@ -719,6 +724,372 @@ export const useSetScrobblingEnabled = <TError = ErrorType<unknown>,
         TContext
       > => {
       return useMutation(getSetScrobblingEnabledMutationOptions(options));
+    }
+
+export const getGetPlaylistsUrl = () => {
+
+
+
+
+  return `/api/playback/playlists`
+}
+
+/**
+ * @summary List user's Spotify playlists
+ */
+export const getPlaylists = async ( options?: RequestInit): Promise<SpotifyPlaylist[]> => {
+
+  return customFetch<SpotifyPlaylist[]>(getGetPlaylistsUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetPlaylistsQueryKey = () => {
+    return [
+    `/api/playback/playlists`
+    ] as const;
+    }
+
+
+export const getGetPlaylistsQueryOptions = <TData = Awaited<ReturnType<typeof getPlaylists>>, TError = ErrorType<ReconnectNeeded>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPlaylists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetPlaylistsQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getPlaylists>>> = ({ signal }) => getPlaylists({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getPlaylists>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetPlaylistsQueryResult = NonNullable<Awaited<ReturnType<typeof getPlaylists>>>
+export type GetPlaylistsQueryError = ErrorType<ReconnectNeeded>
+
+
+/**
+ * @summary List user's Spotify playlists
+ */
+
+export function useGetPlaylists<TData = Awaited<ReturnType<typeof getPlaylists>>, TError = ErrorType<ReconnectNeeded>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getPlaylists>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetPlaylistsQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getGetDevicesUrl = () => {
+
+
+
+
+  return `/api/playback/devices`
+}
+
+/**
+ * @summary List active Spotify devices
+ */
+export const getDevices = async ( options?: RequestInit): Promise<SpotifyDevice[]> => {
+
+  return customFetch<SpotifyDevice[]>(getGetDevicesUrl(),
+  {
+    ...options,
+    method: 'GET'
+
+
+  }
+);}
+
+
+
+
+
+export const getGetDevicesQueryKey = () => {
+    return [
+    `/api/playback/devices`
+    ] as const;
+    }
+
+
+export const getGetDevicesQueryOptions = <TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>( options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+) => {
+
+const {query: queryOptions, request: requestOptions} = options ?? {};
+
+  const queryKey =  queryOptions?.queryKey ?? getGetDevicesQueryKey();
+
+
+
+    const queryFn: QueryFunction<Awaited<ReturnType<typeof getDevices>>> = ({ signal }) => getDevices({ signal, ...requestOptions });
+
+
+
+
+
+   return  { queryKey, queryFn, ...queryOptions} as UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData> & { queryKey: QueryKey }
+}
+
+export type GetDevicesQueryResult = NonNullable<Awaited<ReturnType<typeof getDevices>>>
+export type GetDevicesQueryError = ErrorType<unknown>
+
+
+/**
+ * @summary List active Spotify devices
+ */
+
+export function useGetDevices<TData = Awaited<ReturnType<typeof getDevices>>, TError = ErrorType<unknown>>(
+  options?: { query?:UseQueryOptions<Awaited<ReturnType<typeof getDevices>>, TError, TData>, request?: SecondParameter<typeof customFetch>}
+
+ ):  UseQueryResult<TData, TError> & { queryKey: QueryKey } {
+
+  const queryOptions = getGetDevicesQueryOptions(options)
+
+  const query = useQuery(queryOptions) as  UseQueryResult<TData, TError> & { queryKey: QueryKey };
+
+  return { ...query, queryKey: queryOptions.queryKey };
+}
+
+
+
+
+
+
+
+export const getStartPlaybackUrl = () => {
+
+
+
+
+  return `/api/playback/play`
+}
+
+/**
+ * @summary Start playing a playlist or album on Spotify
+ */
+export const startPlayback = async (playbackInput: PlaybackInput, options?: RequestInit): Promise<OkResponse> => {
+
+  return customFetch<OkResponse>(getStartPlaybackUrl(),
+  {
+    ...options,
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      playbackInput,)
+  }
+);}
+
+
+
+
+export const getStartPlaybackMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startPlayback>>, TError,{data: BodyType<PlaybackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof startPlayback>>, TError,{data: BodyType<PlaybackInput>}, TContext> => {
+
+const mutationKey = ['startPlayback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof startPlayback>>, {data: BodyType<PlaybackInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  startPlayback(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type StartPlaybackMutationResult = NonNullable<Awaited<ReturnType<typeof startPlayback>>>
+    export type StartPlaybackMutationBody = BodyType<PlaybackInput>
+    export type StartPlaybackMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Start playing a playlist or album on Spotify
+ */
+export const useStartPlayback = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof startPlayback>>, TError,{data: BodyType<PlaybackInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof startPlayback>>,
+        TError,
+        {data: BodyType<PlaybackInput>},
+        TContext
+      > => {
+      return useMutation(getStartPlaybackMutationOptions(options));
+    }
+
+export const getPausePlaybackUrl = () => {
+
+
+
+
+  return `/api/playback/pause`
+}
+
+/**
+ * @summary Pause Spotify playback
+ */
+export const pausePlayback = async ( options?: RequestInit): Promise<OkResponse> => {
+
+  return customFetch<OkResponse>(getPausePlaybackUrl(),
+  {
+    ...options,
+    method: 'POST'
+
+
+  }
+);}
+
+
+
+
+export const getPausePlaybackMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pausePlayback>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof pausePlayback>>, TError,void, TContext> => {
+
+const mutationKey = ['pausePlayback'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof pausePlayback>>, void> = () => {
+
+
+          return  pausePlayback(requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type PausePlaybackMutationResult = NonNullable<Awaited<ReturnType<typeof pausePlayback>>>
+
+    export type PausePlaybackMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Pause Spotify playback
+ */
+export const usePausePlayback = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof pausePlayback>>, TError,void, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof pausePlayback>>,
+        TError,
+        void,
+        TContext
+      > => {
+      return useMutation(getPausePlaybackMutationOptions(options));
+    }
+
+export const getSetRepeatModeUrl = () => {
+
+
+
+
+  return `/api/playback/repeat`
+}
+
+/**
+ * @summary Set Spotify repeat mode
+ */
+export const setRepeatMode = async (repeatInput: RepeatInput, options?: RequestInit): Promise<OkResponse> => {
+
+  return customFetch<OkResponse>(getSetRepeatModeUrl(),
+  {
+    ...options,
+    method: 'PATCH',
+    headers: { 'Content-Type': 'application/json', ...options?.headers },
+    body: JSON.stringify(
+      repeatInput,)
+  }
+);}
+
+
+
+
+export const getSetRepeatModeMutationOptions = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setRepeatMode>>, TError,{data: BodyType<RepeatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+): UseMutationOptions<Awaited<ReturnType<typeof setRepeatMode>>, TError,{data: BodyType<RepeatInput>}, TContext> => {
+
+const mutationKey = ['setRepeatMode'];
+const {mutation: mutationOptions, request: requestOptions} = options ?
+      options.mutation && 'mutationKey' in options.mutation && options.mutation.mutationKey ?
+      options
+      : {...options, mutation: {...options.mutation, mutationKey}}
+      : {mutation: { mutationKey, }, request: undefined};
+
+
+
+
+      const mutationFn: MutationFunction<Awaited<ReturnType<typeof setRepeatMode>>, {data: BodyType<RepeatInput>}> = (props) => {
+          const {data} = props ?? {};
+
+          return  setRepeatMode(data,requestOptions)
+        }
+
+
+
+
+
+
+  return  { mutationFn, ...mutationOptions }}
+
+    export type SetRepeatModeMutationResult = NonNullable<Awaited<ReturnType<typeof setRepeatMode>>>
+    export type SetRepeatModeMutationBody = BodyType<RepeatInput>
+    export type SetRepeatModeMutationError = ErrorType<unknown>
+
+    /**
+ * @summary Set Spotify repeat mode
+ */
+export const useSetRepeatMode = <TError = ErrorType<unknown>,
+    TContext = unknown>(options?: { mutation?:UseMutationOptions<Awaited<ReturnType<typeof setRepeatMode>>, TError,{data: BodyType<RepeatInput>}, TContext>, request?: SecondParameter<typeof customFetch>}
+ ): UseMutationResult<
+        Awaited<ReturnType<typeof setRepeatMode>>,
+        TError,
+        {data: BodyType<RepeatInput>},
+        TContext
+      > => {
+      return useMutation(getSetRepeatModeMutationOptions(options));
     }
 
 export const getGetScrobblesUrl = (params?: GetScrobblesParams,) => {

@@ -64,6 +64,67 @@ export const SetScrobblingEnabledResponse = zod.object({
 
 
 /**
+ * @summary List user's Spotify playlists
+ */
+export const GetPlaylistsResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "imageUrl": zod.string().nullish(),
+  "trackCount": zod.number(),
+  "uri": zod.string(),
+  "owner": zod.string().optional()
+})
+export const GetPlaylistsResponse = zod.array(GetPlaylistsResponseItem)
+
+
+/**
+ * @summary List active Spotify devices
+ */
+export const GetDevicesResponseItem = zod.object({
+  "id": zod.string(),
+  "name": zod.string(),
+  "type": zod.string(),
+  "isActive": zod.boolean(),
+  "volumePercent": zod.number().nullish()
+})
+export const GetDevicesResponse = zod.array(GetDevicesResponseItem)
+
+
+/**
+ * @summary Start playing a playlist or album on Spotify
+ */
+export const StartPlaybackBody = zod.object({
+  "contextUri": zod.string(),
+  "deviceId": zod.string().nullish(),
+  "repeat": zod.boolean().optional()
+})
+
+export const StartPlaybackResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Pause Spotify playback
+ */
+export const PausePlaybackResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
+ * @summary Set Spotify repeat mode
+ */
+export const SetRepeatModeBody = zod.object({
+  "state": zod.string()
+})
+
+export const SetRepeatModeResponse = zod.object({
+  "ok": zod.boolean()
+})
+
+
+/**
  * @summary Get scrobble history (paginated)
  */
 export const getScrobblesQueryLimitDefault = 50;

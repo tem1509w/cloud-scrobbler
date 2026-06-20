@@ -16,6 +16,8 @@ tags:
     description: Scrobble history
   - name: stats
     description: Listening statistics
+  - name: playback
+    description: Spotify playback control
 paths:
   /healthz:
     get:
@@ -119,6 +121,93 @@ paths:
       responses:
         "200":
           description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /playback/playlists:
+    get:
+      operationId: getPlaylists
+      tags: [playback]
+      summary: List user's Spotify playlists
+      responses:
+        "200":
+          description: Playlists
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpotifyPlaylist"
+        "403":
+          description: Spotify reconnect needed
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ReconnectNeeded"
+
+  /playback/devices:
+    get:
+      operationId: getDevices
+      tags: [playback]
+      summary: List active Spotify devices
+      responses:
+        "200":
+          description: Devices
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/SpotifyDevice"
+
+  /playback/play:
+    post:
+      operationId: startPlayback
+      tags: [playback]
+      summary: Start playing a playlist or album on Spotify
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/PlaybackInput"
+      responses:
+        "200":
+          description: Playback started
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /playback/pause:
+    post:
+      operationId: pausePlayback
+      tags: [playback]
+      summary: Pause Spotify playback
+      responses:
+        "200":
+          description: Paused
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OkResponse"
+
+  /playback/repeat:
+    patch:
+      operationId: setRepeatMode
+      tags: [playback]
+      summary: Set Spotify repeat mode
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/RepeatInput"
+      responses:
+        "200":
+          description: Repeat mode set
           content:
             application/json:
               schema:
@@ -405,3 +494,62 @@ components:
       properties:
         enabled:
           type: boolean
+
+    ReconnectNeeded:
+      type: object
+      required: [needsReconnect, message]
+      properties:
+        needsReconnect:
+          type: boolean
+        message:
+          type: string
+
+    SpotifyPlaylist:
+      type: object
+      required: [id, name, trackCount, uri]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        imageUrl:
+          type: ["string", "null"]
+        trackCount:
+          type: integer
+        uri:
+          type: string
+        owner:
+          type: string
+
+    SpotifyDevice:
+      type: object
+      required: [id, name, type, isActive]
+      properties:
+        id:
+          type: string
+        name:
+          type: string
+        type:
+          type: string
+        isActive:
+          type: boolean
+        volumePercent:
+          type: ["integer", "null"]
+
+    PlaybackInput:
+      type: object
+      required: [contextUri]
+      properties:
+        contextUri:
+          type: string
+        deviceId:
+          type: ["string", "null"]
+        repeat:
+          type: boolean
+
+    RepeatInput:
+      type: object
+      required: [state]
+      properties:
+        state:
+          type: string

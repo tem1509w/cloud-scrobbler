@@ -125,6 +125,41 @@ export interface ScrobblingToggle {
   enabled: boolean;
 }
 
+export interface ReconnectNeeded {
+  needsReconnect: boolean;
+  message: string;
+}
+
+export interface SpotifyPlaylist {
+  id: string;
+  name: string;
+  /** @nullable */
+  imageUrl?: string | null;
+  trackCount: number;
+  uri: string;
+  owner?: string;
+}
+
+export interface SpotifyDevice {
+  id: string;
+  name: string;
+  type: string;
+  isActive: boolean;
+  /** @nullable */
+  volumePercent?: number | null;
+}
+
+export interface PlaybackInput {
+  contextUri: string;
+  /** @nullable */
+  deviceId?: string | null;
+  repeat?: boolean;
+}
+
+export interface RepeatInput {
+  state: string;
+}
+
 export type GetScrobblesParams = {
 limit?: number;
 offset?: number;
