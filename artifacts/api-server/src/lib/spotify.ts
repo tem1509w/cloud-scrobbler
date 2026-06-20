@@ -102,9 +102,15 @@ export async function getValidSpotifyToken(user: User): Promise<string | null> {
       .update(usersTable)
       .set({ spotifyAccessToken: accessToken, spotifyTokenExpiresAt: newExpiry })
       .where(eq(usersTable.id, user.id));
+    // Token refreshed successfully — clear any previous reconnect flag
+    const { clearNeedsReconnect } = await import("./presence");
+    clearNeedsReconnect(user.id);
     return accessToken;
   } catch (err) {
     logger.error({ err }, "Failed to refresh Spotify token");
+    // Flag this user as needing to re-authenticate
+    const { markNeedsReconnect } = await import("./presence");
+    markNeedsReconnect(user.id);
     return null;
   }
 }

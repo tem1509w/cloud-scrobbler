@@ -11,7 +11,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { AppLayout } from "@/components/layout/app-layout";
 import { NowPlaying } from "@/components/now-playing";
-import { Activity, Music, Share2, LogIn, Loader2, BarChart2, RefreshCw, Radio, RadioTower } from "lucide-react";
+import { Activity, Music, Share2, LogIn, Loader2, BarChart2, RefreshCw, Radio, RadioTower, AlertTriangle } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { toast } from "sonner";
 import { cn } from "@/lib/utils";
@@ -96,6 +96,23 @@ export default function Dashboard() {
             Signal processing active. Manage connections and monitor the live data stream.
           </p>
         </header>
+
+        {/* Spotify reconnect warning */}
+        {session.spotifyNeedsReconnect && (
+          <div className="flex items-center gap-4 px-5 py-4 rounded-xl border border-yellow-500/40 bg-yellow-500/10 text-yellow-300">
+            <AlertTriangle className="h-5 w-5 shrink-0 text-yellow-400" />
+            <div className="flex-1 text-sm font-mono">
+              Spotify token expired — auto-scrobbling is paused.
+            </div>
+            <Button
+              size="sm"
+              className="bg-yellow-500/20 hover:bg-yellow-500/30 text-yellow-300 border border-yellow-500/40 font-bold uppercase tracking-wider text-xs"
+              onClick={() => window.open("/api/auth/spotify/connect", "oauth", "width=520,height=700,left=200,top=100")}
+            >
+              Reconnect Spotify
+            </Button>
+          </div>
+        )}
 
         {/* Connect Flow or Dashboard */}
         {!isFullyConnected ? (

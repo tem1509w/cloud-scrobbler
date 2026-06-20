@@ -22,6 +22,7 @@ export const HealthCheckResponse = zod.object({
 export const GetMeResponse = zod.object({
   "spotifyConnected": zod.boolean(),
   "lastfmConnected": zod.boolean(),
+  "spotifyNeedsReconnect": zod.boolean().optional(),
   "spotifyUser": zod.object({
   "id": zod.string(),
   "displayName": zod.string(),

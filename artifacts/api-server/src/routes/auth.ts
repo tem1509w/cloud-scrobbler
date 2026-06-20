@@ -2,6 +2,7 @@ import { Router, type IRouter } from "express";
 import crypto from "crypto";
 import { db, usersTable } from "@workspace/db";
 import { eq } from "drizzle-orm";
+import { checkNeedsReconnect, clearNeedsReconnect } from "../lib/presence";
 import {
   getSpotifyAuthUrl,
   exchangeSpotifyCode,
@@ -68,6 +69,7 @@ router.get("/auth/me", async (req, res): Promise<void> => {
   res.json({
     spotifyConnected: !!user.spotifyAccessToken,
     lastfmConnected: !!user.lastfmSessionKey,
+    spotifyNeedsReconnect: checkNeedsReconnect(user.id),
     spotifyUser: user.spotifyUserId
       ? {
           id: user.spotifyUserId,
@@ -132,6 +134,7 @@ router.get("/auth/spotify/callback", async (req, res): Promise<void> => {
       })
       .where(eq(usersTable.id, req.session.userId!));
 
+    clearNeedsReconnect(req.session.userId!);
     res.redirect(`${frontendBase}/?oauth_complete=spotify`);
   } catch (err) {
     req.log.error({ err }, "Spotify callback error");

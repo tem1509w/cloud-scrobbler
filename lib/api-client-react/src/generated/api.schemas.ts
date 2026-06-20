@@ -33,6 +33,7 @@ export type SessionInfoLastfmUser = {
 export interface SessionInfo {
   spotifyConnected: boolean;
   lastfmConnected: boolean;
+  spotifyNeedsReconnect?: boolean;
   /** @nullable */
   spotifyUser?: SessionInfoSpotifyUser;
   /** @nullable */

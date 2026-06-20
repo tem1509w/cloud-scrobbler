@@ -11,6 +11,7 @@ import type { SessionInfoSpotifyUser } from './sessionInfoSpotifyUser';
 export interface SessionInfo {
   spotifyConnected: boolean;
   lastfmConnected: boolean;
+  spotifyNeedsReconnect?: boolean;
   /** @nullable */
   spotifyUser?: SessionInfoSpotifyUser;
   /** @nullable */

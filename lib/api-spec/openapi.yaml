@@ -357,6 +357,8 @@ components:
           type: boolean
         lastfmConnected:
           type: boolean
+        spotifyNeedsReconnect:
+          type: boolean
         spotifyUser:
           type: ["object", "null"]
           properties:

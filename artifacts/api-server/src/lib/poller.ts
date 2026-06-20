@@ -3,6 +3,7 @@ import { eq, and, isNotNull, desc } from "drizzle-orm";
 import { getValidSpotifyToken, getSpotifyCurrentlyPlaying } from "./spotify";
 import { scrobbleTrack, updateNowPlaying } from "./lastfm";
 import { logger } from "./logger";
+import { isUserPresent } from "./presence";
 import type { User } from "@workspace/db";
 
 const POLL_INTERVAL_MS = 30_000;
@@ -24,6 +25,13 @@ const userTrackState = new Map<number, TrackState>();
 
 async function pollUser(user: User): Promise<void> {
   try {
+    // If the user has the app open, let the frontend handle live updates —
+    // the poller resumes automatically once they close/idle the app (60s timeout).
+    if (isUserPresent(user.id)) {
+      logger.debug({ userId: user.id }, "User is present in app — skipping auto-poll");
+      return;
+    }
+
     const token = await getValidSpotifyToken(user);
     if (!token) return;
 

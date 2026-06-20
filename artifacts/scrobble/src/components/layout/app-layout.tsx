@@ -3,6 +3,7 @@ import { Link, useLocation } from "wouter";
 import { useGetMe, getGetMeQueryKey } from "@workspace/api-client-react";
 import { Headphones, Activity, ListMusic, Loader2, PlayCircle } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { usePresence } from "@/hooks/use-presence";
 
 function NavItem({
   href,
@@ -37,6 +38,10 @@ export function AppLayout({ children }: { children: ReactNode }) {
   const { data: session, isLoading } = useGetMe({
     query: { queryKey: getGetMeQueryKey() },
   });
+
+  // Tell the server we're active — pauses the background auto-scrobble poller
+  // so it doesn't race with the live now-playing view. Resumes 60s after app closes.
+  usePresence(!!session?.spotifyConnected);
 
   return (
     <div className="min-h-[100dvh] flex flex-col md:flex-row bg-background dark text-foreground">

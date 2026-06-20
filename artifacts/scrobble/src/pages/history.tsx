@@ -14,7 +14,11 @@ export default function HistoryPage() {
     limit: ITEMS_PER_PAGE,
     offset: page * ITEMS_PER_PAGE
   }, {
-    query: { queryKey: getGetScrobblesQueryKey({ limit: ITEMS_PER_PAGE, offset: page * ITEMS_PER_PAGE }) }
+    query: {
+      queryKey: getGetScrobblesQueryKey({ limit: ITEMS_PER_PAGE, offset: page * ITEMS_PER_PAGE }),
+      // Auto-refresh every 15s so new auto-scrobbles appear live without page reload
+      refetchInterval: 15_000,
+    }
   });
 
   return (
