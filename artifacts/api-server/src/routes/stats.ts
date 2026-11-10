@@ -50,38 +50,32 @@ router.get("/stats/summary", async (req, res): Promise<void> => {
   weekStart.setDate(weekStart.getDate() - 7);
   weekStart.setHours(0, 0, 0, 0);
 
-  const [totalRow, todayRow, weekRow, artistRow, trackRow] = await Promise.all([
-    db.select({ value: count() }).from(scrobblesTable).where(eq(scrobblesTable.userId, userId)),
-    db
-      .select({ value: count() })
-      .from(scrobblesTable)
-      .where(
-        sql`${scrobblesTable.userId} = ${userId} AND ${scrobblesTable.scrobbledAt} >= ${todayStart.toISOString()}`
-      ),
-    db
-      .select({ value: count() })
-      .from(scrobblesTable)
-      .where(
-        sql`${scrobblesTable.userId} = ${userId} AND ${scrobblesTable.scrobbledAt} >= ${weekStart.toISOString()}`
-      ),
-    db
-      .select({ value: sql<number>`COUNT(DISTINCT ${scrobblesTable.artistName})` })
-      .from(scrobblesTable)
-      .where(eq(scrobblesTable.userId, userId)),
-    db
-      .select({ value: sql<number>`COUNT(DISTINCT ${scrobblesTable.spotifyTrackId})` })
-      .from(scrobblesTable)
-      .where(eq(scrobblesTable.userId, userId)),
-  ]);
+  // Single query for all counts using conditional aggregation
+  const [statsRow] = await db.execute(sql<{ 
+    total: number; 
+    today: number; 
+    week: number; 
+    artists: number; 
+    tracks: number 
+  }>`
+    SELECT 
+      COUNT(*) as total,
+      COUNT(*) FILTER (WHERE scrobbled_at >= ${todayStart.toISOString()}) as today,
+      COUNT(*) FILTER (WHERE scrobbled_at >= ${weekStart.toISOString()}) as week,
+      COUNT(DISTINCT artist_name) as artists,
+      COUNT(DISTINCT spotify_track_id) as tracks
+    FROM scrobbles
+    WHERE user_id = ${userId}
+  `);
 
   res.json(
     GetStatsSummaryResponse.parse({
-      totalScrobbles: Number(totalRow[0]?.value ?? 0),
-      uniqueArtists: Number(artistRow[0]?.value ?? 0),
-      uniqueTracks: Number(trackRow[0]?.value ?? 0),
+      totalScrobbles: Number(statsRow?.total ?? 0),
+      uniqueArtists: Number(statsRow?.artists ?? 0),
+      uniqueTracks: Number(statsRow?.tracks ?? 0),
       scrobblingEnabled: user.scrobblingEnabled === "true",
-      todayCount: Number(todayRow[0]?.value ?? 0),
-      thisWeekCount: Number(weekRow[0]?.value ?? 0),
+      todayCount: Number(statsRow?.today ?? 0),
+      thisWeekCount: Number(statsRow?.week ?? 0),
     })
   );
 });
@@ -106,7 +100,7 @@ router.get("/stats/top-artists", async (req, res): Promise<void> => {
     .orderBy(desc(count()))
     .limit(limit);
 
-  res.json(GetTopArtistsResponse.parse(rows.map((r) => ({ artistName: r.artistName, count: Number(r.count) }))));
+  res.json(GetTopArtistsResponse.parse(rows.map((r: { artistName: string; count: number }) => ({ artistName: r.artistName, count: Number(r.count) }))));
 });
 
 router.get("/stats/top-tracks", async (req, res): Promise<void> => {
@@ -133,7 +127,7 @@ router.get("/stats/top-tracks", async (req, res): Promise<void> => {
 
   res.json(
     GetTopTracksResponse.parse(
-      rows.map((r) => ({
+      rows.map((r: { trackName: string; artistName: string; albumArt: string | null; count: number }) => ({
         trackName: r.trackName,
         artistName: r.artistName,
         albumArt: r.albumArt ?? null,
@@ -164,7 +158,7 @@ router.get("/stats/scrobbles-per-day", async (req, res): Promise<void> => {
     .groupBy(sql`DATE(${scrobblesTable.scrobbledAt} AT TIME ZONE 'UTC')`)
     .orderBy(sql`DATE(${scrobblesTable.scrobbledAt} AT TIME ZONE 'UTC')`);
 
-  res.json(GetScrobblesPerDayResponse.parse(rows.map((r) => ({ date: r.date, count: Number(r.count) }))));
+  res.json(GetScrobblesPerDayResponse.parse(rows.map((r: { date: string; count: number }) => ({ date: r.date, count: Number(r.count) }))));
 });
 
 export default router;
